@@ -40,7 +40,7 @@ async def lifespan(app: FastAPI):
 
     if not INDEX_DIR.exists():
         print("⚙️  Index not found. Building…")
-        build_index()
+        await build_index()
 
     print("⚙️  Loading SBERT model (paraphrase-multilingual-MiniLM-L12-v2)…")
     _model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")

@@ -41,7 +41,8 @@ SCHEMA:
       "company": "",
       "start_date": "",
       "end_date": "",
-      "description": ""
+      "description": "",
+      "tech": []
     }}
   ],
   "education": [
@@ -65,6 +66,7 @@ EXTRACTION INSTRUCTIONS:
 - For skills:
   - Extract explicit skills only (no assumptions).
 - If no experience exist, return empty list [].
+- If experience is a project, keep company as empty string and title as "[Project Name]".
 
 CV TEXT:
 {text}
@@ -78,7 +80,25 @@ def extract_text(filepath):
             return "\n".join(page.extract_text() for page in pdf.pages)
     elif filepath.endswith(".docx"):
         doc = docx.Document(filepath)
-        return "\n".join(p.text for p in doc.paragraphs)
+        text = []
+
+        # Extract text from paragraphs
+        for p in doc.paragraphs:
+            if p.text.strip():
+                text.append(p.text.strip())
+
+        # Extract text from tables
+        for table in doc.tables:
+            for r in table.rows:
+                row = []
+                for cell in r.cells:
+                    cell_text = cell.text.strip()
+                    if cell_text:
+                        row.append(cell_text)
+                if row:
+                    text.append(" | ".join(row))
+
+        return "\n".join(text)
     else:
         return None
 
